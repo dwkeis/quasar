@@ -3,10 +3,10 @@
     <div style="width:100%">
       <q-calendar
         v-model="selectedDate"
-        view="3day"
+        view="week"
         locale="en-us"
         :interval-height="50"
-        style="height: 1000px;"
+        style="height: 100%;"
       />
     </div>
   </q-page>
