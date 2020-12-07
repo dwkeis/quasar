@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
     <q-layout view="hHh Lpr lff">
-      <q-header elevated>
+      <q-header elevated class="bg-white text-black" height-hint="">
         <q-toolbar>
           <q-btn
             flat
@@ -11,9 +11,30 @@
             icon="menu"
           />
           <q-toolbar-title>
-            KC's first test
-          </q-toolbar-title>
+            <q-icon name="today" />
+            Calendar
 
+            <q-btn
+              color="white"
+              text-color="black"
+              label="今天"
+              class="q-ml-xl q-mr-md"
+              outline
+            >
+              <q-tooltip content-class="bg-grey">{{ date }}</q-tooltip>
+            </q-btn>
+            <q-btn icon="keyboard_arrow_left" round flat size="10px" />
+            <q-btn
+              icon="keyboard_arrow_right"
+              round
+              flat
+              size="10px"
+              class="q-mr-md"
+            />
+            <q-btn flat>
+              {{ date }}
+            </q-btn>
+          </q-toolbar-title>
           <div>Quasar v{{ $q.version }}</div>
         </q-toolbar>
       </q-header>
@@ -29,6 +50,7 @@
           <div class="q-pa-sm">
             <q-date v-model="date" />
           </div>
+          <p>我的日曆</p>
         </q-scroll-area>
       </q-drawer>
 

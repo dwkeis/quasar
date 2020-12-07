@@ -1,11 +1,12 @@
 <template>
   <q-page class="flex flex-center">
-    <div style="max-width: 800px; width: 100%;">
+    <div style="width:100%">
       <q-calendar
         v-model="selectedDate"
         view="3day"
         locale="en-us"
-        style="height: 400px;"
+        :interval-height="50"
+        style="height: 1000px;"
       />
     </div>
   </q-page>
