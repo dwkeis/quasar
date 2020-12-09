@@ -107,9 +107,6 @@ export default {
     calendarPrev() {
       this.$refs.calendar.prev();
     },
-    onClickTime2(data) {
-      this.events.unshift(`click:time2: ${JSON.stringify(data)}`);
-    },
     badgeClasses(event, type) {
       const isHeader = type === "header";
       return {
@@ -129,9 +126,6 @@ export default {
       }
       s["align-items"] = "flex-start";
       return s;
-    },
-    getHeadDay(timestamp) {
-      return `${timestamp.date}`;
     },
     getEvents(dt) {
       const currentDate = QCalendar.parsed(dt);
