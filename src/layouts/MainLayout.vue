@@ -38,11 +38,7 @@
             <q-btn flat>
               {{ noday }} <br />
               農曆N月
-              <q-popup-proxy
-                @before-show="updateProxy"
-                transition-show="scale"
-                transition-hide="scale"
-              >
+              <q-popup-proxy transition-show="scale" transition-hide="scale">
                 <q-date v-model="proxyDate" minimal>
                   <div class="row items-center justify-end q-gutter-sm" />
                 </q-date>
@@ -55,19 +51,19 @@
           <q-btn icon="settings" round flat class="q-mr-md q-my-md" />
           <q-btn-dropdown label="週" round padding="5px 8px">
             <q-list>
-              <q-item clickable v-close-popup @click="onItemClick">
+              <q-item clickable v-close-popup>
                 <q-item-section>
                   <q-item-label>週</q-item-label>
                 </q-item-section>
               </q-item>
 
-              <q-item clickable v-close-popup @click="onItemClick">
+              <q-item clickable v-close-popup>
                 <q-item-section>
                   <q-item-label>月</q-item-label>
                 </q-item-section>
               </q-item>
 
-              <q-item clickable v-close-popup @click="onItemClick">
+              <q-item clickable v-close-popup>
                 <q-item-section>
                   <q-item-label>年</q-item-label>
                 </q-item-section>
@@ -95,19 +91,19 @@
           </div>
           <q-btn-dropdown label="我的日曆" class="full-width" flat>
             <q-list>
-              <q-item clickable v-close-popup @click="onItemClick">
+              <q-item clickable v-close-popup>
                 <q-item-section>
                   <q-item-label>Kc Ma</q-item-label>
                 </q-item-section>
               </q-item>
 
-              <q-item clickable v-close-popup @click="onItemClick">
+              <q-item clickable v-close-popup>
                 <q-item-section>
                   <q-item-label>提醒</q-item-label>
                 </q-item-section>
               </q-item>
 
-              <q-item clickable v-close-popup @click="onItemClick">
+              <q-item clickable v-close-popup>
                 <q-item-section>
                   <q-item-label>Contacts</q-item-label>
                 </q-item-section>
