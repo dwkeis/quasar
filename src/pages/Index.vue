@@ -18,10 +18,12 @@
         <template v-for="(event, index) in getEvents(timestamp.date)">
           <q-badge
             v-if="event.time"
-            class="my-event justify-center"
-            color="red"
+            class="absolute-center"
             :key="index"
-            floating
+            :style="
+              badgeStyles(event, 'body', timeStartPos, timeDurationHeight)
+            "
+            :class="badgeClasses(event, 'body')"
           >
             <span class="ellipsis">{{ event.title }}</span>
           </q-badge>
@@ -69,11 +71,21 @@ export default {
           icon: "fas fa-handshake"
         },
         {
-          title: "1st of the Month",
+          title: "1st of Month",
           details:
             "Everything is funny as long as it is happening to someone else",
           date: "2020-12-10",
+          time: "12:00",
+          duration: 60,
           bgcolor: "orange"
+        },
+        {
+          title: "Lunch",
+          details: "Company is paying!",
+          date: "2020-12-17",
+          time: "11:30",
+          duration: 90,
+          bgcolor: "teal"
         }
       ]
     };
@@ -99,10 +111,8 @@ export default {
       this.events.unshift(`click:time2: ${JSON.stringify(data)}`);
     },
     badgeClasses(event, type) {
-      const cssColor = this.isCssColor(event.bgcolor);
       const isHeader = type === "header";
       return {
-        [`text-white bg-${event.bgcolor}`]: !cssColor,
         "full-width": !isHeader && (!event.side || event.side === "full"),
         "left-side": !isHeader && event.side === "left",
         "right-side": !isHeader && event.side === "right"
@@ -111,10 +121,6 @@ export default {
 
     badgeStyles(event, type, timeStartPos, timeDurationHeight) {
       const s = {};
-      if (this.isCssColor(event.bgcolor)) {
-        s["background-color"] = event.bgcolor;
-        s.color = luminosity(event.bgcolor) > 0.5 ? "black" : "white";
-      }
       if (timeStartPos) {
         s.top = timeStartPos(event.time) + "px";
       }
