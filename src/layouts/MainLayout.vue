@@ -23,7 +23,13 @@
             >
               <q-tooltip content-class="bg-grey">{{ today }}</q-tooltip>
             </q-btn>
-            <q-btn icon="keyboard_arrow_left" round flat size="10px">
+            <q-btn
+              icon="keyboard_arrow_left"
+              round
+              flat
+              size="10px"
+              @click="onPrev"
+            >
               <q-tooltip content-class="bg-grey">上週</q-tooltip>
             </q-btn>
             <q-btn
@@ -32,6 +38,7 @@
               flat
               size="10px"
               class="q-mr-md q-my-md"
+              @click="onNext"
             >
               <q-tooltip content-class="bg-grey">下週</q-tooltip>
             </q-btn>
@@ -164,6 +171,16 @@ export default {
         "日",
       noday: Today.getFullYear() + "年" + month + "月"
     };
+  },
+  methods: {
+    onPrev() {
+      /* eslint-disable-next-line */
+      this.$root.$emit("calendar:prev");
+    },
+    onNext() {
+      /* eslint-disable-next-line */
+      this.$root.$emit("calendar:next");
+    }
   }
 };
 </script>

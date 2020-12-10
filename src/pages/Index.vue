@@ -12,6 +12,9 @@
       locale="en-us"
       style="height: 400px;"
       class="calendar-container"
+      animated
+      transition-prev="slide-right"
+      transition-next="slide-left"
     >
       <!-- eslint-disable vue/no-unused-vars -->
       <template #day-body="{ timestamp, timeStartPos, timeDurationHeight }">
