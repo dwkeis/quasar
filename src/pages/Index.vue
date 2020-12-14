@@ -73,7 +73,7 @@
         </q-input>
         <q-input v-model="details" placeholder="Details">
           <template v-slot:before>
-            <q-icon name="" />
+            <q-icon name="subject" />
           </template>
         </q-input>
       </q-card-section>
