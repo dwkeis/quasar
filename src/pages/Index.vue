@@ -52,6 +52,100 @@
         </div>
       </div>
     </q-card>
+    <!--Event Card -->
+    <q-card class="my-card" style="width : 400px;">
+      <q-toolbar class="bg-primary text-white">
+        <q-toolbar-title>
+          Event
+        </q-toolbar-title>
+        <q-btn flat round color="white" icon="close" v-close-popup></q-btn>
+      </q-toolbar>
+      <q-card-section>
+        <q-input
+          v-model="title"
+          placeholder="Title"
+          :rules="[v => (v && v.length > 0) || 'Field cannot be empty']"
+          autofocus
+        >
+          <template v-slot:before>
+            <q-icon name="title" />
+          </template>
+        </q-input>
+        <q-input v-model="details" placeholder="Details">
+          <template v-slot:before>
+            <q-icon name="" />
+          </template>
+        </q-input>
+      </q-card-section>
+
+      <div class="q-pa-md">
+        <!--Start Time-->
+        <q-input v-model="datestart" label="Select Start Time">
+          <template v-slot:before>
+            <q-icon name="add_task" />
+          </template>
+          <template v-slot:append>
+            <q-btn flat round icon="event" class="cursor-pointer">
+              <q-popup-proxy transition-show="scale" transition-hide="scale">
+                <q-date v-model="datestart" mask="YYYY-MM-DD HH:mm">
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-btn>
+            <q-btn flat round icon="access_time" class="cursor-pointer">
+              <q-popup-proxy transition-show="scale" transition-hide="scale">
+                <q-time v-model="datestart" mask="YYYY-MM-DD HH:mm" format24h>
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-time>
+              </q-popup-proxy>
+            </q-btn>
+          </template>
+        </q-input>
+        <!--End Time-->
+        <q-input v-model="dateend" label="Select End Time">
+          <template v-slot:before>
+            <q-icon name="" />
+          </template>
+
+          <template v-slot:append>
+            <q-btn flat round icon="event" class="cursor-pointer">
+              <q-popup-proxy transition-show="scale" transition-hide="scale">
+                <q-date v-model="dateend" mask="YYYY-MM-DD HH:mm">
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-btn>
+            <q-btn flat round icon="access_time" class="cursor-pointer">
+              <q-popup-proxy transition-show="scale" transition-hide="scale">
+                <q-time v-model="dateend" mask="YYYY-MM-DD HH:mm" format24h>
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-time>
+              </q-popup-proxy>
+            </q-btn>
+          </template>
+        </q-input>
+        <!--Check All Day box-->
+        <q-field v-model="allDay" style="padding-bottom: 20px;">
+          <template v-slot:before>
+            <q-icon name="" />
+          </template>
+          <q-checkbox v-model="allDay" label="All-Day event?" />
+        </q-field>
+      </div>
+
+      <q-card-actions align="right">
+        <q-btn flat>Cancel</q-btn>
+        <q-btn color="primary">Submit</q-btn>
+      </q-card-actions>
+    </q-card>
   </q-page>
 </template>
 
@@ -63,11 +157,16 @@ export default {
   data() {
     return {
       selectedDate: "",
+      datestart: "2020-12-14 01:42",
+      dateend: "",
+      allDay: false,
+      title: "",
+      details: "",
       events: [
         {
           title: "Meeting",
           details: "Time to pitch my idea to the company",
-          date: "2020-12-11",
+          date: "2020-12-15",
           time: "10:00",
           duration: 120,
           bgcolor: "red",
@@ -77,10 +176,27 @@ export default {
           title: "1st of Month",
           details:
             "Everything is funny as long as it is happening to someone else",
-          date: "2020-12-10",
+          date: "2020-12-16",
           time: "12:00",
           duration: 60,
           bgcolor: "orange"
+        },
+        {
+          title: "1st of Month",
+          details:
+            "Everything is funny as long as it is happening to someone else",
+          date: "2020-12-16",
+          time: "11:30",
+          duration: 60
+        },
+        {
+          title: "testing",
+          details:
+            "Everything is funny as long as it is happening to someone else",
+          date: "2020-12-15",
+          time: "14:00",
+          duration: 60,
+          bgcolor: "teal"
         },
         {
           title: "Lunch",
@@ -121,6 +237,7 @@ export default {
 
     badgeStyles(event, type, timeStartPos, timeDurationHeight) {
       const s = {};
+      s["background-color"] = event.bgcolor;
       if (timeStartPos) {
         s.top = timeStartPos(event.time) + "px";
       }
@@ -131,35 +248,37 @@ export default {
       return s;
     },
     getEvents(dt) {
-      const currentDate = QCalendar.parsed(dt);
+      const currentDate = QCalendar.parseTimestamp(dt);
       const events = [];
       for (let i = 0; i < this.events.length; ++i) {
         let added = false;
-        if (this.events[i].date === dt) {
-          if (this.events[i].time) {
+        const event = this.events[i];
+        if (event.date === dt) {
+          if (event.time !== undefined) {
             if (events.length > 0) {
               // check for overlapping times
-              const startTime = QCalendar.parsed(
-                this.events[i].date + " " + this.events[i].time
+              const startTime = QCalendar.parseTimestamp(
+                event.date + " " + event.time
               );
               const endTime = QCalendar.addToDate(startTime, {
-                minute: this.events[i].duration
+                minute: event.duration
               });
               for (let j = 0; j < events.length; ++j) {
-                if (events[j].time) {
-                  const startTime2 = QCalendar.parsed(
-                    events[j].date + " " + events[j].time
+                const evt = events[j];
+                if (evt.time !== undefined) {
+                  const startTime2 = QCalendar.parseTimestamp(
+                    evt.date + " " + evt.time
                   );
                   const endTime2 = QCalendar.addToDate(startTime2, {
-                    minute: events[j].duration
+                    minute: evt.duration
                   });
                   if (
                     QCalendar.isBetweenDates(startTime, startTime2, endTime2) ||
                     QCalendar.isBetweenDates(endTime, startTime2, endTime2)
                   ) {
-                    events[j].side = "left";
-                    this.events[i].side = "right";
-                    events.push(this.events[i]);
+                    evt.side = "left";
+                    event.side = "right";
+                    events.push(event);
                     added = true;
                     break;
                   }
@@ -168,17 +287,15 @@ export default {
             }
           }
           if (!added) {
-            this.events[i].side = undefined;
-            events.push(this.events[i]);
+            event.side = undefined;
+            events.push(event);
           }
-        } else if (this.events[i].days) {
+        } else if (event.days) {
           // check for overlapping dates
-          const startDate = QCalendar.parsed(this.events[i].date);
-          const endDate = QCalendar.addToDate(startDate, {
-            day: this.events[i].days
-          });
+          const startDate = QCalendar.parseTimestamp(event.date);
+          const endDate = QCalendar.addToDate(startDate, { day: event.days });
           if (QCalendar.isBetweenDates(currentDate, startDate, endDate)) {
-            events.push(this.events[i]);
+            events.push(event);
             added = true;
           }
         }
