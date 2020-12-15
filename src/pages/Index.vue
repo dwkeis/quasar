@@ -1,5 +1,167 @@
 <template>
-  <q-page class="flex flex-center">
+  <q-page class="column" style="overflow: hidden">
+    <!-- Even card -->
+
+    <q-dialog v-model="addEvent" no-backdrop-dismiss>
+      <div>
+        <q-form ref="event" @submit="onSubmit" @reset="onReset">
+          <q-card v-if="addEvent" style="width : 400px;">
+            <q-toolbar class="bg-primary text-white">
+              <q-toolbar-title> {{ addOrUpdateEvent }} Event </q-toolbar-title>
+              <q-btn
+                flat
+                round
+                color="white"
+                icon="close"
+                v-close-popup
+              ></q-btn>
+            </q-toolbar>
+            <q-card-section>
+              <q-input
+                v-model="eventForm.title"
+                placeholder="Title"
+                :rules="[v => (v && v.length > 0) || 'Field cannot be empty']"
+                autofocus
+              >
+                <template v-slot:before>
+                  <q-icon name="title" />
+                </template>
+              </q-input>
+              <q-input v-model="eventForm.details" placeholder="Details">
+                <template v-slot:before>
+                  <q-icon name="subject" />
+                </template>
+              </q-input>
+            </q-card-section>
+
+            <div class="q-pa-md">
+              <!--Start Time-->
+              <q-input
+                v-model="eventForm.dateTimeStart"
+                ref="dateTimeStart"
+                label="Select Start Time"
+                mask="####-##-## ##:##"
+              >
+                <template v-slot:before>
+                  <q-icon name="add_task" />
+                </template>
+                <template v-slot:append>
+                  <q-btn flat round icon="event" class="cursor-pointer">
+                    <q-popup-proxy
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date
+                        v-model="eventForm.dateTimeStart"
+                        mask="YYYY-MM-DD HH:mm"
+                      >
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="Close"
+                            color="primary"
+                            flat
+                          />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-btn>
+                  <q-btn flat round icon="access_time" class="cursor-pointer">
+                    <q-popup-proxy
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-time
+                        v-model="eventForm.dateTimeStart"
+                        mask="YYYY-MM-DD HH:mm"
+                        format24h
+                      >
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="Close"
+                            color="primary"
+                            flat
+                          />
+                        </div>
+                      </q-time>
+                    </q-popup-proxy>
+                  </q-btn>
+                </template>
+              </q-input>
+              <!--End Time-->
+              <q-input
+                v-model="eventForm.dateTimeEnd"
+                ref="dateTimeEnd"
+                label="Select End Time"
+                mask="####-##-## ##:##"
+              >
+                <template v-slot:before>
+                  <q-icon name="" />
+                </template>
+
+                <template v-slot:append>
+                  <q-btn flat round icon="event" class="cursor-pointer">
+                    <q-popup-proxy
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date
+                        v-model="eventForm.dateTimeEnd"
+                        mask="YYYY-MM-DD HH:mm"
+                      >
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="Close"
+                            color="primary"
+                            flat
+                          />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-btn>
+                  <q-btn flat round icon="access_time" class="cursor-pointer">
+                    <q-popup-proxy
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-time
+                        v-model="eventForm.dateTimeEnd"
+                        mask="YYYY-MM-DD HH:mm"
+                        format24h
+                      >
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="Close"
+                            color="primary"
+                            flat
+                          />
+                        </div>
+                      </q-time>
+                    </q-popup-proxy>
+                  </q-btn>
+                </template>
+              </q-input>
+              <!--Check All Day box-->
+              <q-field v-model="eventForm.allDay" style="padding-bottom: 20px;">
+                <template v-slot:before>
+                  <q-icon name="" />
+                </template>
+                <q-checkbox v-model="eventForm.allDay" label="All-Day event?" />
+              </q-field>
+            </div>
+
+            <q-card-actions align="right">
+              <q-btn flat type="reset" label="Cancel" v-close-popup></q-btn>
+              <q-btn color="primary" type="submit" label="OK"></q-btn>
+            </q-card-actions>
+          </q-card>
+        </q-form>
+      </div>
+    </q-dialog>
+
     <div class="row justify-center items-center">
       <q-btn flat label="Prev" @click="calendarPrev" />
       <q-separator vertical />
@@ -15,6 +177,7 @@
       animated
       transition-prev="slide-right"
       transition-next="slide-left"
+      @click:time2="addEventMenu"
     >
       <!-- eslint-disable vue/no-unused-vars -->
       <template #day-body="{ timestamp, timeStartPos, timeDurationHeight }">
@@ -52,105 +215,20 @@
         </div>
       </div>
     </q-card>
-    <!--Event Card -->
-    <q-card class="my-card" style="width : 400px;">
-      <q-toolbar class="bg-primary text-white">
-        <q-toolbar-title>
-          Event
-        </q-toolbar-title>
-        <q-btn flat round color="white" icon="close" v-close-popup></q-btn>
-      </q-toolbar>
-      <q-card-section>
-        <q-input
-          v-model="title"
-          placeholder="Title"
-          :rules="[v => (v && v.length > 0) || 'Field cannot be empty']"
-          autofocus
-        >
-          <template v-slot:before>
-            <q-icon name="title" />
-          </template>
-        </q-input>
-        <q-input v-model="details" placeholder="Details">
-          <template v-slot:before>
-            <q-icon name="subject" />
-          </template>
-        </q-input>
-      </q-card-section>
-
-      <div class="q-pa-md">
-        <!--Start Time-->
-        <q-input v-model="datestart" label="Select Start Time">
-          <template v-slot:before>
-            <q-icon name="add_task" />
-          </template>
-          <template v-slot:append>
-            <q-btn flat round icon="event" class="cursor-pointer">
-              <q-popup-proxy transition-show="scale" transition-hide="scale">
-                <q-date v-model="datestart" mask="YYYY-MM-DD HH:mm">
-                  <div class="row items-center justify-end">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
-                  </div>
-                </q-date>
-              </q-popup-proxy>
-            </q-btn>
-            <q-btn flat round icon="access_time" class="cursor-pointer">
-              <q-popup-proxy transition-show="scale" transition-hide="scale">
-                <q-time v-model="datestart" mask="YYYY-MM-DD HH:mm" format24h>
-                  <div class="row items-center justify-end">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
-                  </div>
-                </q-time>
-              </q-popup-proxy>
-            </q-btn>
-          </template>
-        </q-input>
-        <!--End Time-->
-        <q-input v-model="dateend" label="Select End Time">
-          <template v-slot:before>
-            <q-icon name="" />
-          </template>
-
-          <template v-slot:append>
-            <q-btn flat round icon="event" class="cursor-pointer">
-              <q-popup-proxy transition-show="scale" transition-hide="scale">
-                <q-date v-model="dateend" mask="YYYY-MM-DD HH:mm">
-                  <div class="row items-center justify-end">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
-                  </div>
-                </q-date>
-              </q-popup-proxy>
-            </q-btn>
-            <q-btn flat round icon="access_time" class="cursor-pointer">
-              <q-popup-proxy transition-show="scale" transition-hide="scale">
-                <q-time v-model="dateend" mask="YYYY-MM-DD HH:mm" format24h>
-                  <div class="row items-center justify-end">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
-                  </div>
-                </q-time>
-              </q-popup-proxy>
-            </q-btn>
-          </template>
-        </q-input>
-        <!--Check All Day box-->
-        <q-field v-model="allDay" style="padding-bottom: 20px;">
-          <template v-slot:before>
-            <q-icon name="" />
-          </template>
-          <q-checkbox v-model="allDay" label="All-Day event?" />
-        </q-field>
-      </div>
-
-      <q-card-actions align="right">
-        <q-btn flat>Cancel</q-btn>
-        <q-btn color="primary">Submit</q-btn>
-      </q-card-actions>
-    </q-card>
   </q-page>
 </template>
 
 <script>
 import QCalendar from "@quasar/quasar-ui-qcalendar";
+
+const formDefault = {
+  title: "",
+  details: "",
+  allDay: false,
+  dateTimeStart: "",
+  dateTimeEnd: "",
+  bgcolor: "#0000FF"
+};
 
 export default {
   name: "Dayview",
@@ -162,6 +240,9 @@ export default {
       allDay: false,
       title: "",
       details: "",
+      contextDay: null,
+      addEvent: false,
+      eventForm: { ...formDefault },
       events: [
         {
           title: "Meeting",
@@ -177,26 +258,8 @@ export default {
           details:
             "Everything is funny as long as it is happening to someone else",
           date: "2020-12-16",
-          time: "12:00",
-          duration: 60,
-          bgcolor: "orange"
-        },
-        {
-          title: "1st of Month",
-          details:
-            "Everything is funny as long as it is happening to someone else",
-          date: "2020-12-16",
           time: "11:30",
           duration: 60
-        },
-        {
-          title: "testing",
-          details:
-            "Everything is funny as long as it is happening to someone else",
-          date: "2020-12-15",
-          time: "14:00",
-          duration: 60,
-          bgcolor: "teal"
         },
         {
           title: "Lunch",
@@ -217,9 +280,72 @@ export default {
         (map[event.date] = map[event.date] || []).push(event)
       );
       return map;
+    },
+    addOrUpdateEvent() {
+      if (this.contextDay && this.contextDay.bgcolor) {
+        return "Update";
+      }
+      return "Add";
     }
   },
   methods: {
+    resetForm() {
+      this.$set(this, "eventForm", { ...formDefault });
+    },
+    addEventMenu({ scope, event }) {
+      this.resetForm();
+      this.contextDay = { ...scope.timestamp };
+      this.addEvent = true; // show dialog
+    },
+    onReset() {},
+    onSubmit() {
+      this.saveEvent();
+    },
+    saveEvent() {
+      const self = this;
+      this.$refs.event.validate().then(success => {
+        if (success) {
+          // close the dialog
+          self.addEvent = false;
+          const form = { ...self.eventForm };
+          let update = false;
+          if (self.contextDay.bgcolor) {
+            // an update
+            update = true;
+          } else {
+            // an add
+          }
+          const data = {
+            title: form.title,
+            details: form.details,
+            bgcolor: form.bgcolor,
+            date: String(form.dateTimeStart)
+              .slice(0, 10)
+              .replace(/\//g, "-")
+          };
+          if (form.allDay === false) {
+            // get time into separate var
+            data.time = String(form.dateTimeStart).slice(11, 16);
+            data.duration = self.getDuration(
+              form.dateTimeStart,
+              form.dateTimeEnd,
+              "minutes"
+            );
+          }
+          if (update === true) {
+            const index = self.findEventIndex(self.contextDay);
+            if (index >= 0) {
+              self.events.splice(index, 1, { ...data });
+            }
+          } else {
+            // add to events array
+            self.events.push(data);
+          }
+
+          self.contextDay = null;
+        }
+      });
+    },
     calendarNext() {
       this.$refs.calendar.next();
     },
