@@ -168,7 +168,7 @@
         </q-form>
       </div>
     </q-dialog>
-
+    <q-card-section>
     <div class="row justify-center items-center">
       <q-btn flat label="Prev" @click="calendarPrev" />
       <q-separator vertical />
@@ -185,17 +185,19 @@
       transition-next="slide-left"
       @click:time2="addEventMenu"
       :interval-height="50"
+      @click:date2="onClickDate2"
+      @click:day:header2="onClickDayHeader2"
+      @click:interval2="onClickInterval2"
+      @click:interval:header2="onClickIntervalHeader2"
     >
       <!-- eslint-disable vue/no-unused-vars -->
       <template #day-body="{ timestamp, timeStartPos, timeDurationHeight }">
         <template v-for="(event, index) in getEvents(timestamp.date)">
           <q-badge
             v-if="event.time"
-            class="absolute-center"
+            class="my-event justify-center"
             :key="index"
-            :style="
-              badgeStyles(event, 'body', timeStartPos, timeDurationHeight)
-            "
+            :style="badgeStyles(event, 'body', timeStartPos, timeDurationHeight)"
             :class="badgeClasses(event, 'body')"
           >
             <span class="ellipsis">{{ event.title }}</span>
@@ -203,6 +205,12 @@
         </template>
       </template>
     </q-calendar>
+    </q-card-section>
+    <div class="scroll overflow-auto" style="height: 360px; width: 100%;">
+        <div v-for="(event, index) in events" :key="index" class="col-12" style="font-size: 10px; line-height: 10px; max-height: 14px; min-height: 14px; padding: 2px 2px; white-space: nowrap;">
+          {{ event }}
+        </div>
+      </div>
   </q-page>
 </template>
 
@@ -224,8 +232,6 @@ export default {
   data() {
     return {
       selectedDate: "",
-      datestart: "2020-12-14 01:42",
-      dateend: "",
       allDay: false,
       title: "",
       details: "",
@@ -255,7 +261,7 @@ export default {
           details: "Company is paying!",
           date: "2020-12-17",
           time: "11:30",
-          duration: 90,
+          duration: 60,
           bgcolor: "teal"
         }
       ]
@@ -278,6 +284,21 @@ export default {
     }
   },
   methods: {
+    onClickDate2 (data) {
+      this.events.unshift(`click:date2: ${JSON.stringify(data)}`)
+    },
+    onClickDayHeader2 (data) {
+      this.events.unshift(`click:day:header2: ${JSON.stringify(data)}`)
+    },
+    onClickInterval2 (data) {
+      this.events.unshift(`click:interval2: ${JSON.stringify(data)}`)
+    },
+    onClickTime2 (data) {
+      this.events.unshift(`click:time2: ${JSON.stringify(data)}`)
+    },
+    onClickIntervalHeader2 (data) {
+      this.events.unshift(`click:interval:header2: ${JSON.stringify(data)}`)
+    },
     resetForm() {
       this.$set(this, "eventForm", { ...formDefault });
     },
