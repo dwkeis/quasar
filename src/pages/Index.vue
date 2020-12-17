@@ -1,5 +1,57 @@
 <template>
   <q-page class="column" style="overflow: hidden">
+    <!-- display an event -->
+    <q-dialog v-model="displayEvent">
+      <div>
+        <q-card v-if="event">
+          <q-toolbar class="bg-black text-white" style="min-width: 400px;">
+            <q-toolbar-title>
+              {{ event.title }}
+            </q-toolbar-title>
+            <q-btn flat round color="white" icon="eva-trash-2-outline" v-close-popup @click="deleteEvent(event)"></q-btn>
+            <q-btn flat round color="white" icon="eva-edit-2-outline" v-close-popup @click="editEvent(event)"></q-btn>
+            <q-btn flat round color="white" icon="eva-close-outline" v-close-popup></q-btn>
+          </q-toolbar>
+          <q-card-section class="inset-shadow">
+            <div v-if="event.allDay" class="text-caption">{{ getEventDate(event) }}</div>
+            {{ event.details }}
+            <div v-if="event.time" class="text-caption">
+              <div class="row full-width justify-start" style="padding-top: 12px;">
+                <div class="col-12">
+                  <div class="row full-width justify-start">
+                    <div class="col-5" style="padding-left: 20px;">
+                      <strong>Start Time:</strong>
+                    </div>
+                    <div class="col-7">
+                      {{ event.time }}
+                    </div>
+                  </div>
+                  <div class="row full-width justify-start">
+                    <div class="col-5" style="padding-left: 20px;">
+                      <strong>End Time:</strong>
+                    </div>
+                    <div class="col-7">
+                      {{ getEndTime(event) }}
+                    </div>
+                  </div>
+                  <div class="row full-width justify-start">
+                    <div class="col-5" style="padding-left: 20px;">
+                      <strong>Duration:</strong>
+                    </div>
+                    <div class="col-7">
+                      {{ convertDurationTime(event.duration) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn flat label="OK" color="primary" v-close-popup></q-btn>
+          </q-card-actions>
+        </q-card>
+      </div>
+    </q-dialog>
     <!-- Even card -->
 
     <q-dialog v-model="addEvent" no-backdrop-dismiss>
@@ -185,12 +237,32 @@
       transition-next="slide-left"
       @click:time2="addEventMenu"
       :interval-height="50"
-      @click:date2="onClickDate2"
-      @click:day:header2="onClickDayHeader2"
-      @click:interval2="onClickInterval2"
-      @click:interval:header2="onClickIntervalHeader2"
     >
       <!-- eslint-disable vue/no-unused-vars -->
+      <template #day-header="{ timestamp }">
+            <template v-for="(event, index) in eventsMap[timestamp.date]">
+              <q-badge
+                v-if="!event.time"
+                :key="index"
+                style="width: 100%; cursor: pointer; height: 14px; max-height: 14px"
+                :class="badgeClasses(event, 'header')"
+                :style="badgeStyles(event, 'header')"
+                @click.stop.prevent="showEvent(event)"
+              >
+                <q-icon v-if="event.icon" :name="event.icon" class="q-mr-xs"></q-icon><span class="ellipsis">{{ event.title }}</span>
+              </q-badge>
+              <q-badge
+                v-else
+                :key="index"
+                class="q-ma-xs self-end"
+                :class="badgeClasses(event, 'header')"
+                :style="badgeStyles(event, 'header')"
+                style="width: 10px; max-width: 10px; height: 10px; max-height: 10px"
+              />
+            </template>
+          
+        </template>
+
       <template #day-body="{ timestamp, timeStartPos, timeDurationHeight }">
         <template v-for="(event, index) in getEvents(timestamp.date)">
           <q-badge
@@ -199,6 +271,7 @@
             :key="index"
             :style="badgeStyles(event, 'body', timeStartPos, timeDurationHeight)"
             :class="badgeClasses(event, 'body')"
+            @click.stop.prevent="showEvent(event)"
           >
             <span class="ellipsis">{{ event.title }}</span>
           </q-badge>
@@ -210,7 +283,7 @@
         <div v-for="(event, index) in events" :key="index" class="col-12" style="font-size: 10px; line-height: 10px; max-height: 14px; min-height: 14px; padding: 2px 2px; white-space: nowrap;">
           {{ event }}
         </div>
-      </div>
+    </div>
   </q-page>
 </template>
 
@@ -237,6 +310,8 @@ export default {
       details: "",
       contextDay: null,
       addEvent: false,
+      displayEvent: false,
+      event:null,
       eventForm: { ...formDefault },
       events: [
         {
@@ -254,6 +329,7 @@ export default {
             "Everything is funny as long as it is happening to someone else",
           date: "2020-12-16",
           time: "11:30",
+          bgcolor: "orange",
           duration: 60
         },
         {
@@ -284,27 +360,95 @@ export default {
     }
   },
   methods: {
-    onClickDate2 (data) {
-      this.events.unshift(`click:date2: ${JSON.stringify(data)}`)
+    convertDurationTime (n) {
+      const num = n
+      const days = Math.floor(((num / 60) / 24))
+      const hours = (num / 60)
+      const rhours = Math.floor(hours)
+      const rshours = Math.floor(hours - (days * 24))
+      const minutes = (hours - rhours) * 60
+      const rminutes = Math.round(minutes)
+      return (days > 0 ? days + ' days and ' : '') + (rshours > 0 ? rshours + ' hour(s) and ' : '') + rminutes + ' minute(s).'
     },
-    onClickDayHeader2 (data) {
-      this.events.unshift(`click:day:header2: ${JSON.stringify(data)}`)
+    getEndTime (event) {
+      let endTime = QCalendar.parseTimestamp(event.date + ' ' + event.time)
+      endTime = QCalendar.addToDate(endTime, { minute: event.duration })
+      endTime = QCalendar.getTime(endTime)
+      return endTime
     },
-    onClickInterval2 (data) {
-      this.events.unshift(`click:interval2: ${JSON.stringify(data)}`)
+    getEventDate (event) {
+      const parts = event.date.split('-')
+      const date = new Date(parts[0], parts[1] - 1, parts[2])
+      return this.dateFormatter.format(date)
     },
-    onClickTime2 (data) {
-      this.events.unshift(`click:time2: ${JSON.stringify(data)}`)
+    editEvent (event) {
+      this.resetForm()
+      this.contextDay = { ...event }
+      let timestamp
+      if (event.time) {
+        timestamp = QCalendar.parseTimestamp(event.date + ' ' + event.time)
+        const endTime = QCalendar.addToDate(timestamp, { minute: event.duration })
+        this.eventForm.dateTimeEnd = QCalendar.getDateTime(endTime)
+      }
+      else {
+        timestamp = QCalendar.parseTimestamp(this.contextDay.date + ' 00:00')
+      }
+      this.eventForm.dateTimeStart = QCalendar.getDateTime(timestamp)
+      this.eventForm.allDay = !event.time
+      this.eventForm.bgcolor = event.bgcolor
+      this.eventForm.icon = event.icon
+      this.eventForm.title = event.title
+      this.eventForm.details = event.details
+      this.addEvent = true // show dialog
     },
-    onClickIntervalHeader2 (data) {
-      this.events.unshift(`click:interval:header2: ${JSON.stringify(data)}`)
+    deleteEvent (event) {
+      const index = this.findEventIndex(event)
+      if (index >= 0) {
+        this.events.splice(index, 1)
+      }
+    },
+    findEventIndex (event) {
+      for (let i = 0; i < this.events.length; ++i) {
+        if (event.title === this.events[i].title &&
+          event.details === this.events[i].details &&
+          event.date === this.events[i].date) {
+          return i
+        }
+      }
+    },
+    displayStyles (event) {
+      const s = {}
+      s['background-color'] = event.bgcolor
+      s['text-white']
+      return s
+    },
+    showEvent (event) {
+        this.event = event
+        this.displayEvent = true
+      
     },
     resetForm() {
       this.$set(this, "eventForm", { ...formDefault });
     },
+    adjustTimestamp (day) {
+      day.minute = day.minute < 15 || day.minute >= 45 ? 0 : 30
+      day.time = QCalendar.getTime(day)
+      return day
+    },
     addEventMenu({ scope, event }) {
       this.resetForm();
       this.contextDay = { ...scope.timestamp };
+      let timestamp
+      if (this.contextDay.hasTime === true) {
+        timestamp = this.adjustTimestamp(this.contextDay)
+        const endTime = QCalendar.addToDate(timestamp, { hour: 1 })
+        this.eventForm.dateTimeEnd = QCalendar.getDateTime(endTime)
+      }
+      else {
+        timestamp = QCalendar.parseTimestamp(this.contextDay.date + ' 00:00')
+      }
+      this.eventForm.dateTimeStart = QCalendar.getDateTime(timestamp)
+      this.eventForm.allDay = this.contextDay.hasTime === false
       this.addEvent = true; // show dialog
     },
     onReset() {},
@@ -384,9 +528,9 @@ export default {
         s.top = timeStartPos(event.time, false) + "px";
         s.position = "absolute";
         if (event.side !== undefined) {
-          s.width = "50%";
+          s.width = "49%";
           if (event.side === "right") {
-            s.left = "50%";
+            s.left = "51%";
           }
         } else {
           s.width = "100%";
