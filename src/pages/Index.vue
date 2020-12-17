@@ -93,6 +93,7 @@
                 ref="dateTimeStart"
                 label="Select Start Time"
                 mask="####-##-## ##:##"
+                :rules="[val => checkDateTimeStart() || 'Start time cannot come after end time']"
               >
                 <template v-slot:before>
                   <q-icon name="eva-checkmark-circle" />
@@ -148,6 +149,7 @@
                 ref="dateTimeEnd"
                 label="Select End Time"
                 mask="####-##-## ##:##"
+                :rules="[val => checkDateTimeEnd() || 'Start time cannot come after end time']"
               >
                 <template v-slot:before>
                   <q-icon name="" />
@@ -360,6 +362,59 @@ export default {
     }
   },
   methods: {
+    checkDateTimeStart (/* val */) {
+      this.$refs.dateTimeEnd.resetValidation()
+      if (this.eventForm.dateTimeStart && this.eventForm.dateTimeEnd) {
+        const timestampStart = QCalendar.parseTimestamp(this.eventForm.dateTimeStart)
+        const timestampEnd = QCalendar.parseTimestamp(this.eventForm.dateTimeEnd)
+        const dayStart = QCalendar.getDayIdentifier(timestampStart)
+        const dayEnd = QCalendar.getDayIdentifier(timestampEnd)
+        if (dayStart < dayEnd) {
+          return true
+        }
+        else if (dayStart > dayEnd) {
+          return false
+        }
+        else {
+          const timeStart = QCalendar.getTimeIdentifier(timestampStart)
+          const timeEnd = QCalendar.getTimeIdentifier(timestampEnd)
+          if (timeStart <= timeEnd) {
+            return true
+          }
+          else {
+            return false
+          }
+        }
+      }
+      return false
+    },
+
+    checkDateTimeEnd (val) {
+      this.$refs.dateTimeStart.resetValidation()
+      if (this.eventForm.dateTimeStart && this.eventForm.dateTimeEnd) {
+        const timestampEnd = QCalendar.parseTimestamp(this.eventForm.dateTimeEnd)
+        const timestampStart = QCalendar.parseTimestamp(this.eventForm.dateTimeStart)
+        const dayEnd = QCalendar.getDayIdentifier(timestampEnd)
+        const dayStart = QCalendar.getDayIdentifier(timestampStart)
+        if (dayEnd > dayStart) {
+          return true
+        }
+        else if (dayEnd < dayStart) {
+          return false
+        }
+        else {
+          const timeEnd = QCalendar.getTimeIdentifier(timestampEnd)
+          const timeStart = QCalendar.getTimeIdentifier(timestampStart)
+          if (timeEnd >= timeStart) {
+            return true
+          }
+          else {
+            return false
+          }
+        }
+      }
+      return false
+    },
     convertDurationTime (n) {
       const num = n
       const days = Math.floor(((num / 60) / 24))
@@ -542,61 +597,7 @@ export default {
       s["align-items"] = "flex-start";
       return s;
     },
-    checkDateTimeStart(/* val */) {
-      this.$refs.dateTimeEnd.resetValidation();
-      if (this.eventForm.dateTimeStart && this.eventForm.dateTimeEnd) {
-        const timestampStart = QCalendar.parseTimestamp(
-          this.eventForm.dateTimeStart
-        );
-        const timestampEnd = QCalendar.parseTimestamp(
-          this.eventForm.dateTimeEnd
-        );
-        const dayStart = QCalendar.getDayIdentifier(timestampStart);
-        const dayEnd = QCalendar.getDayIdentifier(timestampEnd);
-        if (dayStart < dayEnd) {
-          return true;
-        } else if (dayStart > dayEnd) {
-          return false;
-        } else {
-          const timeStart = QCalendar.getTimeIdentifier(timestampStart);
-          const timeEnd = QCalendar.getTimeIdentifier(timestampEnd);
-          if (timeStart <= timeEnd) {
-            return true;
-          } else {
-            return false;
-          }
-        }
-      }
-      return false;
-    },
-
-    checkDateTimeEnd(val) {
-      this.$refs.dateTimeStart.resetValidation();
-      if (this.eventForm.dateTimeStart && this.eventForm.dateTimeEnd) {
-        const timestampEnd = QCalendar.parseTimestamp(
-          this.eventForm.dateTimeEnd
-        );
-        const timestampStart = QCalendar.parseTimestamp(
-          this.eventForm.dateTimeStart
-        );
-        const dayEnd = QCalendar.getDayIdentifier(timestampEnd);
-        const dayStart = QCalendar.getDayIdentifier(timestampStart);
-        if (dayEnd > dayStart) {
-          return true;
-        } else if (dayEnd < dayStart) {
-          return false;
-        } else {
-          const timeEnd = QCalendar.getTimeIdentifier(timestampEnd);
-          const timeStart = QCalendar.getTimeIdentifier(timestampStart);
-          if (timeEnd >= timeStart) {
-            return true;
-          } else {
-            return false;
-          }
-        }
-      }
-      return false;
-    },
+    
     getEvents(dt) {
       const currentDate = QCalendar.parseTimestamp(dt);
       const events = [];
