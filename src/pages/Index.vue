@@ -124,7 +124,7 @@
 
             
               <!--Start Time-->
-              <div v-else class="q-mx-md q-mt-md">
+            <div v-else class="q-mx-md q-mt-md">
               <q-input
                 v-model="eventForm.dateTimeStart"
                 ref="dateTimeStart"
@@ -184,6 +184,7 @@
             
               <q-input
                 v-model="eventForm.dateTimeEnd"
+                class="q-pb-none"
                 ref="dateTimeEnd"
                 label="Select End Time"
                 mask="####-##-## ##:##"
@@ -237,16 +238,18 @@
                   </q-btn>
                 </template>
               </q-input>
-              </div>
+            </div>
             
 
               <!--Check All Day box-->
-                <q-field v-model="eventForm.allDay" style="padding-bottom: 20px;" class="q-px-md">
+              <div class="q-pt-none q-px-md">
+                <q-field v-model="eventForm.allDay" style="padding-bottom: 20px;">
                   <template v-slot:before>
                     <q-icon name="" />
                   </template>
                   <q-checkbox v-model="eventForm.allDay" label="All-Day event?" />
                 </q-field>
+              </div>
               
 
             <q-card-actions align="right">
