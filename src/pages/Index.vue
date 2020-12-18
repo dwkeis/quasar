@@ -68,7 +68,7 @@
                 v-close-popup
               ></q-btn>
             </q-toolbar>
-            <q-card-section>
+            <div class="q-px-md">
               <q-input
                 v-model="eventForm.title"
                 placeholder="Title"
@@ -84,10 +84,47 @@
                   <q-icon name="eva-list" />
                 </template>
               </q-input>
-            </q-card-section>
+            </div>
 
-            <div class="q-pa-md">
+            <q-input
+                v-if="eventForm.allDay"
+                v-model="eventForm.dateTimeStart"
+                label="Select Date"
+                mask="####-##-##"
+                class="q-px-md q-pt-md"
+              >
+                <template v-slot:before>
+                  <q-icon name="eva-checkmark-circle" />
+                </template>
+                <template v-slot:append>
+                  <q-btn flat round icon="event" class="cursor-pointer">
+                    <q-popup-proxy
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date
+                        v-model="eventForm.dateTimeStart"
+                        mask="YYYY-MM-DD"
+                      >
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="Close"
+                            color="primary"
+                            flat
+                          />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-btn>
+                </template>
+            </q-input>
+                
+
+
+            
               <!--Start Time-->
+              <div v-else class="q-mx-md q-mt-md">
               <q-input
                 v-model="eventForm.dateTimeStart"
                 ref="dateTimeStart"
@@ -142,8 +179,9 @@
                   </q-btn>
                 </template>
               </q-input>
-              <br />
+            
               <!--End Time-->
+            
               <q-input
                 v-model="eventForm.dateTimeEnd"
                 ref="dateTimeEnd"
@@ -199,15 +237,17 @@
                   </q-btn>
                 </template>
               </q-input>
+              </div>
+            
 
               <!--Check All Day box-->
-              <q-field v-model="eventForm.allDay" style="padding-bottom: 20px;">
-                <template v-slot:before>
-                  <q-icon name="" />
-                </template>
-                <q-checkbox v-model="eventForm.allDay" label="All-Day event?" />
-              </q-field>
-            </div>
+                <q-field v-model="eventForm.allDay" style="padding-bottom: 20px;" class="q-px-md">
+                  <template v-slot:before>
+                    <q-icon name="" />
+                  </template>
+                  <q-checkbox v-model="eventForm.allDay" label="All-Day event?" />
+                </q-field>
+              
 
             <q-card-actions align="right">
               <q-btn flat type="reset" label="Cancel" v-close-popup></q-btn>
